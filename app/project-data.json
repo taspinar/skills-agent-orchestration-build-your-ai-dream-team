@@ -1,0 +1,39 @@
+{
+  "projects": [
+    {
+      "name": "Contributor Onboarding",
+      "owner": "Priya Shah",
+      "status": "Active",
+      "recentActivity": "Published the refreshed setup guide and opened three starter issues.",
+      "priority": "High"
+    },
+    {
+      "name": "Design System Refresh",
+      "owner": "Mateo Ruiz",
+      "status": "In review",
+      "recentActivity": "Button and form tokens are ready for accessibility review this week.",
+      "priority": "Medium"
+    },
+    {
+      "name": "API Reliability",
+      "owner": "Jordan Lee",
+      "status": "Active",
+      "recentActivity": "Reduced p95 latency by 18% and is monitoring the new cache policy.",
+      "priority": "High"
+    },
+    {
+      "name": "Community Events",
+      "owner": "Amara Okafor",
+      "status": "Planning",
+      "recentActivity": "Shortlisted hosts and drafted the schedule for the fall contributor series.",
+      "priority": "Low"
+    },
+    {
+      "name": "Usage Insights",
+      "owner": "Evan Brooks",
+      "status": "On track",
+      "recentActivity": "The first weekly engagement report is now available to team leads.",
+      "priority": "Medium"
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A contributor-friendly overview of project progress, activity, and priorities.">
+    <title>Project Pulse</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="dashboard">
+      <header class="dashboard-header">
+        <div>
+          <p class="eyebrow">Team workspace</p>
+          <h1>Project Pulse</h1>
+          <p class="intro">A quick read on what is moving, who is leading it, and where contributors can help next.</p>
+        </div>
+        <div class="pulse-mark" aria-hidden="true">✦</div>
+      </header>
+
+      <section class="pulse-summary" aria-labelledby="summary-heading">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">At a glance</p>
+            <h2 id="summary-heading">Team momentum</h2>
+          </div>
+          <p id="project-count" class="summary-note">Loading projects...</p>
+        </div>
+        <div id="summary-stats" class="summary-stats" aria-live="polite"></div>
+      </section>
+
+      <section class="projects-section" aria-labelledby="projects-heading">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Current work</p>
+            <h2 id="projects-heading">Projects</h2>
+          </div>
+          <p class="summary-note">Updated by project owners</p>
+        </div>
+        <div id="projects" class="project-grid" aria-live="polite" aria-busy="true">
+          <p class="loading-message">Gathering the latest project updates...</p>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const projectsContainer = document.querySelector("#projects");
+      const projectCount = document.querySelector("#project-count");
+      const summaryStats = document.querySelector("#summary-stats");
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function renderSummary(projects) {
+        const activeCount = projects.filter((project) => project.status.toLowerCase() === "active").length;
+        const highPriorityCount = projects.filter((project) => project.priority.toLowerCase() === "high").length;
+        const owners = new Set(projects.map((project) => project.owner)).size;
+        const stats = [
+          ["Projects tracked", projects.length],
+          ["Active now", activeCount],
+          ["High priority", highPriorityCount],
+          ["Contributors", owners]
+        ];
+
+        summaryStats.innerHTML = stats.map(([label, value]) => `
+          <div class="stat">
+            <strong>${value}</strong>
+            <span>${escapeHtml(label)}</span>
+          </div>
+        `).join("");
+      }
+
+      function renderProjects(projects) {
+        if (!Array.isArray(projects) || projects.length === 0) {
+          throw new Error("Project data did not contain any projects.");
+        }
+
+        projectCount.textContent = `${projects.length} ${projects.length === 1 ? "project" : "projects"} in view`;
+        renderSummary(projects);
+        projectsContainer.innerHTML = projects.map((project) => `
+          <article class="project-card">
+            <div class="card-topline">
+              <span class="status-badge status-${escapeHtml(project.status.toLowerCase().replaceAll(" ", "-"))}">
+                ${escapeHtml(project.status)}
+              </span>
+              <span class="priority priority-${escapeHtml(project.priority.toLowerCase())}">
+                ${escapeHtml(project.priority)} priority
+              </span>
+            </div>
+            <h3>${escapeHtml(project.name)}</h3>
+            <p class="activity">${escapeHtml(project.recentActivity)}</p>
+            <div class="card-owner">
+              <span class="owner-label">Owner</span>
+              <strong>${escapeHtml(project.owner)}</strong>
+            </div>
+          </article>
+        `).join("");
+        projectsContainer.setAttribute("aria-busy", "false");
+      }
+
+      async function loadProjects() {
+        try {
+          const response = await fetch("project-data.json");
+          if (!response.ok) {
+            throw new Error(`Project data request failed with status ${response.status}.`);
+          }
+          const data = await response.json();
+          renderProjects(data.projects);
+        } catch (error) {
+          projectCount.textContent = "Unable to load projects";
+          projectsContainer.setAttribute("aria-busy", "false");
+          projectsContainer.innerHTML = `
+            <div class="error-message" role="alert">
+              <strong>Project updates are unavailable.</strong>
+              <span>${escapeHtml(error.message)}</span>
+            </div>
+          `;
+        }
+      }
+
+      loadProjects();
+    </script>
+  </body>
+</html>
